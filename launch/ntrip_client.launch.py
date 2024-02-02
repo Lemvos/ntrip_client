@@ -1,4 +1,4 @@
-""" Launch ublox_dgnss_node publishing high precision Lon/Lat messages"""
+""" Launch ntrip_client for RTCM correction data."""
 import launch
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
@@ -8,19 +8,17 @@ from launch_ros.descriptions import ComposableNode
 
 
 def generate_launch_description():
-  """Generate launch description for ublox_dgnss components."""
-
   use_https_arg = DeclareLaunchArgument(
-    "use_https", default_value=TextSubstitution(text="true")
+    "use_https", default_value=TextSubstitution(text="false")
   )
   host_arg = DeclareLaunchArgument(
-    "host", default_value=TextSubstitution(text="ntrip.data.gnss.ga.gov.au")
+    "host", default_value=TextSubstitution(text="rtk2go.com")
   )
   port_arg = DeclareLaunchArgument(
-    "port", default_value=TextSubstitution(text="443")
+    "port", default_value=TextSubstitution(text="2101")
   )
   mountpoint_arg = DeclareLaunchArgument(
-    "mountpoint", default_value=TextSubstitution(text="MBCH00AUS0")
+    "mountpoint", default_value=TextSubstitution(text="Prittlbach")
   )
   username_arg = DeclareLaunchArgument(
     "username", default_value=EnvironmentVariable(name="NTRIP_USERNAME", default_value="noname")
@@ -44,8 +42,8 @@ def generate_launch_description():
     executable='component_container_mt',
     composable_node_descriptions=[
       ComposableNode(
-        package='ntrip_client_node',
-        plugin='ublox_dgnss::NTRIPClientNode',
+        package='ntrip_client',
+        plugin='ntrip_client::NTRIPClientNode',
         name='ntrip_client',
         parameters=params
       )

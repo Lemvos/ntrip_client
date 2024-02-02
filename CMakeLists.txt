@@ -35,7 +35,7 @@ ament_target_dependencies(ntrip_client_components
 )
 
 rclcpp_components_register_node(ntrip_client_components
-  PLUGIN "ublox_dgnss::NTRIPClientNode"
+  PLUGIN "ntrip_client::NTRIPClientNode"
   EXECUTABLE ntrip_client_node
 )
 
@@ -44,6 +44,11 @@ install(TARGETS
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
+)
+
+install(
+  DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)

@@ -17,14 +17,14 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
 #include "rtcm_msgs/msg/message.hpp"
-#include "ntrip_client_node/visibility_control.h"
+#include "ntrip_client/visibility_control.h"
 
 using namespace std::chrono_literals;
 using std::placeholders::_1;
 using std::placeholders::_2;
 using std::placeholders::_3;
 
-namespace ublox_dgnss
+namespace ntrip_client
 {
 struct CurlHandle
 {
@@ -45,10 +45,10 @@ public:
   {
     RCLCPP_INFO(this->get_logger(), "starting %s", get_name());
 
-    declare_parameter("use_https", true);
-    declare_parameter("host", "ntrip.data.gnss.ga.gov.au");
-    declare_parameter("port", 443);
-    declare_parameter("mountpoint", "MBCH00AUS0");
+    declare_parameter("use_https", false);
+    declare_parameter("host", "rtk2go.com");
+    declare_parameter("port", 2101);
+    declare_parameter("mountpoint", "Prittlebach");
     declare_parameter("username", "noname");
     declare_parameter("password", "password");
 
@@ -67,7 +67,7 @@ public:
     RCLCPP_DEBUG(this->get_logger(), "userpwd: '%s'", userpwd.c_str());
 
     // Create the publisher for rtcm_msgs::msg::Message
-    rtcm_pub_ = this->create_publisher<rtcm_msgs::msg::Message>("/ntrip_client/rtcm", 10);
+    rtcm_pub_ = this->create_publisher<rtcm_msgs::msg::Message>("/rtcm", 10);
 
     curl_global_init(CURL_GLOBAL_DEFAULT);
 
@@ -235,6 +235,6 @@ public:
     RCLCPP_INFO(this->get_logger(), "finished");
   }
 };
-}  // namespace ublox_dgnss
+}  // namespace ntrip_client
 
-RCLCPP_COMPONENTS_REGISTER_NODE(ublox_dgnss::NTRIPClientNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(ntrip_client::NTRIPClientNode)
