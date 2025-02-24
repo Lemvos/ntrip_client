@@ -1,0 +1,63 @@
+name: Build ROS2 Debian Package (ARM64)
+
+on:
+  push:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+jobs:
+  build-deb:
+    runs-on:
+      - ubuntu-22.04-arm64
+    container:
+      image: ros:humble-ros-base
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          apt-get update
+          apt-get install -y python3-bloom fakeroot dpkg-dev debhelper python3-catkin-pkg
+
+      - name: Initialize rosdep
+        run: |
+          rosdep update
+          rosdep install --from-paths . --ignore-src -y
+
+      - name: Build Debian package
+        run: |
+          bloom-generate rosdebian
+          fakeroot debian/rules binary
+
+      - name: Move Debian package to workspace
+        run: mv ../*.deb .
+
+      - name: Upload Debian package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ros2-deb-package
+          path: ./*.deb
+
+  publish-deb:
+      needs: build-deb
+      runs-on: ubuntu-22.04
+      steps:
+        - name: Download artifact
+          uses: actions/download-artifact@v4
+          with:
+            name: ros2-deb-package
+
+        - name: Push to Artifactory
+          uses: cloudsmith-io/action@master
+          with:
+            api-key: ${{ secrets.CLOUDSMITH_API_KEY }}
+            command: "push"
+            format: "deb"
+            owner: "${{ vars.CLOUDSMITH_OWNER }}"
+            repo: "${{ vars.CLOUDSMITH_REPO }}"
+            distro: "ubuntu"
+            release: "jammy"
+            republish: "true"
+            file: "*.deb"
